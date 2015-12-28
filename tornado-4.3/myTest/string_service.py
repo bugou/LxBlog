@@ -8,9 +8,11 @@ import tornado.web
 from tornado.options import define, options
 define("port", default=8888, help="run on the given port", type=int)
 
+
 class ReverseHandler(tornado.web.RequestHandler):
     def get(self, input):
         self.write(input[::-1])
+
 
 class WrapHandler(tornado.web.RequestHandler):
     def post(self):
