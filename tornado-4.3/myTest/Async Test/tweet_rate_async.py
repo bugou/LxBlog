@@ -14,7 +14,7 @@ class IndexHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self):
         query = self.get_argument("wd")
-        client = tornado.httpclient.HTTPClient()
+        client = tornado.httpclient.AsyncHTTPClient()
         client.fetch("http://www.baidu.com/s?" + urllib.urlencode(
                                                 {"wd": query, }
                                                 ),

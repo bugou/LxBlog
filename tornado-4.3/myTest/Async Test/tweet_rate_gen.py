@@ -13,12 +13,12 @@ define("port", default=33333, help="run on given port", type=int)
 
 class IndexHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
-    @tornado.gen.engine
+    @tornado.gen.coroutine
     def get(self):
         query = self.get_argument("wd")
-        client = tornado.httpclient.HTTPClient()
-        response = yield tornado.gen.Task(
-            client.fetch,
+        client = tornado.httpclient.AsyncHTTPClient()
+        #response = yield tornado.gen.Task(
+        response = yield client.fetch(
                 "http://www.baidu.com/s?" + urllib.urlencode(
                                                 {"wd": query, })
         )
