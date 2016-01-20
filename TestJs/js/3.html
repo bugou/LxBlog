@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>toggle()方法绑定多个函数</title>
+        <script src="http://libs.baidu.com/jquery/1.8.2/jquery.js" type="text/javascript"></script>
+        <link href="style.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h3>toggle()方法绑定多个函数</h3>
+        <input id="btntest" type="button" value="点一下我" />
+        <div>我是动态显示的</div>
+
+        <script type="text/javascript">
+            $(function () {
+                $("#btntest").bind("click", function () {
+                    $("div").toggle(
+                        function() {
+                            $(this).html("apple");
+                        },
+                        function() {
+                            $(this).html("other");
+                        }
+                    )
+                })
+            });
+        </script>
+    </body>
+</html>

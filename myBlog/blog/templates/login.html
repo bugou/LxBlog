@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <div class="container">
+    {% if error %}
+        <div class="alert alert-danger" id="login-alert">
+            <button type="button" class="close" data-dismiss="alert" onclick="getElementById('login-alert').style.display='none'" >×</button>
+            <strong>Warning: {{ error }}</strong>
+        </div>
+    {% end %}
+    <form class="form-signin" role="form" action="/auth/login" method="POST">
+        {% module xsrf_form_html() %}
+        <h2 class="form-signin-heading">Welcome Login</h2>
+        Email: <input name="email" type="text" class="form-control" placeholder="Email address" required autofocus/>
+        <br/>
+            Password: <input name="password" type="password" class="form-control" placeholder="Password" required/>
+        <br/>
+        <label class="checkbox">
+            <input type="checkbox" name="remember-me" style="margin-left:0px; position: relative;"/> Remember Me Always
+        </label>
+
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+    </form>
+    </div> <!-- /.container -->
+{% end %}

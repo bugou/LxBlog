@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block header %}
+    {% if current_user %}
+        <div><a href="/compose" class="top-menu">{{ _("New Post") }}</a></div>
+    {% end %}
+{% end %}
+
+{% block body %}
+{% if entries %}
+    <div class="blog-summary">
+    {% for blog in entries %}
+        <p>
+        <a href="/entry/{{ blog.slug }}" >
+            <h2 class="blog-post-title">{{ blog.title }}</h2>
+        </a>
+        </p>
+        <p class="blog-post-meta" align="center"> Posted by
+            <a href="#">{{ blog.name }}</a> on {{ locale.format_date(blog.published) }}
+        </p>
+        <br/>
+    {% end %}
+    </div>
+{% else %}
+    <div class="container">
+		<div class="row">
+	        <div class="col-sm-8 blog-main">
+				<div class="blog-post">
+	            	    {% raw zen %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% end %}
+{% end %}
+
+{% block footer %}
+<footer class="blog-footer">
+    <p>Blog template built for <a href="http://getbootstrap.com">Bootstrap</a> by <a href="https://twitter.com/mdo">@mdo</a>.</p>
+    <p><a href="#">Back to top</a></p>
+</footer>
+{% end %}
