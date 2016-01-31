@@ -1,36 +1,17 @@
 {% extends "base.html" %}
-{% block header %}
-    {% if current_user %}
-        <div><a href="/compose" class="top-menu">{{ _("New Post") }}</a></div>
-    {% end %}
-{% end %}
 
-{% block body %}
+{% block content %}
 {% if entries %}
-    <div class="blog-summary">
     {% for blog in entries %}
-        <p>
-        <a href="/entry/{{ blog.slug }}" >
-            <h2 class="blog-post-title">{{ blog.title }}</h2>
-        </a>
-        </p>
-        <p class="blog-post-meta" align="center"> Posted by
-            <a href="#">{{ blog.name }}</a> on {{ locale.format_date(blog.published) }}
-        </p>
-        <br/>
-    {% end %}
-    </div>
-{% else %}
-    <div class="container">
-		<div class="row">
-	        <div class="col-sm-8 blog-main">
-				<div class="blog-post">
-	            	    {% raw zen %}
-                </div>
-            </div>
+        <div class="blog-post">
+            <h2 class="blog-post-title"> <a href="/entry/{{ blog.title }}" >{{ blog.title }}</a></h2>
+            <p class="blog-post-meta">Posted by <a href="#">{{ blog.name }}</a> on {{ locale.format_date(blog.published) }}</p>
+            <p>{{ blog.slug }}</p>
         </div>
-    </div>
-
+        <hr/>
+    {% end %}
+{% else %}
+    {% raw zen %}
 {% end %}
 {% end %}
 

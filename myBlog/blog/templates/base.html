@@ -14,8 +14,17 @@
         <!-- Custom styles for this template -->
         <link rel="stylesheet" href="{{ static_url('css/blog.css') }}">
         <link rel="alternate" href="/feed" type="application/atom+xml" title="{{ escape(handler.settings['blog_title']) }}">
+        <link rel="stylesheet" href="{{ static_url('css/prettify.css') }}" type="text/css">
         <script src="{{ static_url('js/jquery-2.2.0.min.js') }}" type="javascript"></script>
         <script src="{{ static_url('js/bootstrap.min.js') }}" type="javascript"></script>
+
+
+        <!--
+        <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+        <script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        -->
+
         {% block head %}
         {% end %}
     </head>
@@ -24,23 +33,76 @@
             <div class="main-header no-cover">
                 <div class="blog-header">
                     {% if current_user %}
-                        <div align="right"><a href="/auth/logout?next={{ url_escape(request.uri) }}">{{ _("Sign out") }}</a></div>
+                        <div align="right"><a href="/auth/logout?next={{ url_escape(request.uri) }}"><em>{{ _("Log out") }}</em></a></div>
                     {% end %}
                     <h1 class="blog-title">{{ escape(handler.settings["blog_title"]) }}</h1>
                     </br>
                     <p class="lead blog-description">Thoughts, Stories and Ideas</p>
                 </div>
-                {% if not current_user %}
-                    {% raw _('<a href="%(url)s"><em>Sign in</em></a>') % {"url": "/auth/login"} %}
-                {% end %}
-                {% block header %}
+                {% if current_user %}
+                     <div><a href="/compose" class="top-menu"><em>{{ _("New Post") }}</em></a></div>
+                {% else %}
+                    <div><a href="/auth/login" class="top-menu"><em>Log in</em></a>
+                        &nbsp;&nbsp;&nbsp;
+                    <a href="/auth/create" class="top-menu"><em>Sign up</em></a></div>
                 {% end %}
             </div>
         </div>
+        <div class="container">
+        <div class="row">
+        <div class="col-sm-8 blog-main">
+            <div class="blog-post">
+                {% block content %}
+                {% end%}
+                <!--
+                <nav>
+                    <ul class="pager">
+                        <li><a href="#">Previous</a></li>
+                        <li><a href="#">Next</a></li>
+                    </ul>
+                </nav>
+                -->
+            </div><!-- /.blog-post -->
+        </div><!-- /.blog-main -->
+        <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
 
-        {% block body %}
-        {% end %}
+            <div class="sidebar-module sidebar-module-inset">
+                <h4>About</h4>
+                <p>Etiam porta <em>sem malesuada magna</em> mollis euismod. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.</p>
+            </div>
+            {% if current_user %}
+            <div class="sidebar-module">
+                <h4>Archives</h4>
+                <ol class="list-unstyled">
+                    <li><a href="#">March 2014</a></li>
+                    <li><a href="#">February 2014</a></li>
+                    <li><a href="#">January 2014</a></li>
+                    <li><a href="#">December 2013</a></li>
+                    <li><a href="#">November 2013</a></li>
+                    <li><a href="#">October 2013</a></li>
+                    <li><a href="#">September 2013</a></li>
+                    <li><a href="#">August 2013</a></li>
+                    <li><a href="#">July 2013</a></li>
+                    <li><a href="#">June 2013</a></li>
+                    <li><a href="#">May 2013</a></li>
+                    <li><a href="#">April 2013</a></li>
+                </ol>
+            </div>
+            {% end %}
+            <div class="sidebar-module">
+                <h4>Elsewhere</h4>
+                <ol class="list-unstyled">
+                    <li><a href="https://github.com/">GitHub</a></li>
+                    <li><a href="https://www.google.com.hk/">Google</a></li>
+                    <li><a href="https://www.baidu.com/">Baidu</a></li>
+                </ol>
+            </div>
+        </div><!-- /.blog-sidebar -->
+        </div><!-- /.row -->
+        </div><!-- /.container -->
         {% block footer %}
         {% end %}
+        <script type="text/javascript" src="{{ static_url('js/blog.js') }}"></script>
+        <script type="text/javascript" src="{{ static_url('js/run_prettify.js') }}"></script>
     </body>
 </html>

@@ -14,25 +14,26 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
+import re
+import unicodedata
+
+import MySQLdb
 import bcrypt
 import concurrent.futures
-import MySQLdb
 import markdown
-import re
-import subprocess
-import torndb
 import tornado.escape
-from tornado import gen
 import tornado.httpserver
 import tornado.ioloop
 import tornado.options
 import tornado.web
-import unicodedata
-import time
-import os
-from textToHtml import *
-
+import torndb
 from tornado.options import define, options
+
+from Tornado.myBlog.blog.modules.textToHtml import *
+from Tornado.myBlog.blog.modules.global_var import *
+from Tornado.myBlog.blog.modules.log import *
+from tornado import gen
 
 define("port", default=8888, help="run on the given port", type=int)
 define("mysql_host", default="127.0.0.1:3306", help="blog database host")
@@ -58,7 +59,7 @@ class Application(tornado.web.Application):
             (r"/auth/logout", AuthLogoutHandler),
         ]
         settings = dict(
-            blog_title=u"Tornado Site",
+            blog_title=u"Tornado Site | HOME",
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
             static_path=os.path.join(os.path.dirname(__file__), "static"),
             ui_modules={"Entry": EntryModule},
@@ -66,8 +67,8 @@ class Application(tornado.web.Application):
             cookie_secret="1L924nk7RNSnKhfqzhgq5SBhyBRDqEtItFoXhfaQd2c=",
             # 1L924n...= base64.b64encode(uuid4().bytes + uuid4().bytes)
             login_url="/auth/login",
-            # debug=True,
-            # autoreload=True,
+            debug=G_DEBUG_FLAG,
+            autoreload=G_AUTO_RELOAD,
             # the server process will restart when any source files change
         )
         super(Application, self).__init__(handlers, **settings)
@@ -75,7 +76,7 @@ class Application(tornado.web.Application):
         self.db = torndb.Connection(
             host=options.mysql_host, database=options.mysql_database,
             user=options.mysql_user, password=options.mysql_password)
-
+        (self.log_fd, self.fd) = log_init()
         self.maybe_create_tables()
 
     def maybe_create_tables(self):
@@ -96,6 +97,10 @@ class BaseHandler(tornado.web.RequestHandler):
     @property
     def db(self):
         return self.application.db
+
+    @property
+    def log_fd(self):
+        return self.application.log_fd
 
     def get_current_user(self):
         user_id = self.get_secure_cookie("blog_user_id")
@@ -150,6 +155,7 @@ Namespaces are one honking great idea -- let's do more of those!
 
 
 class EntryHandler(BaseHandler):
+    @tornado.web.authenticated
     def get(self, slug):
         entry = self.db.get("SELECT * FROM entries WHERE slug = %s", slug)
         if not entry:
@@ -220,33 +226,47 @@ class AuthCreateHandler(BaseHandler):
 
     @gen.coroutine
     def post(self):
-        email = self.get_argument("email")
+        email = self.get_argument("email", None)
+        username = self.get_argument("username", None)
+        passwd = self.get_argument("password", None)
+        confirm_passwd = self.get_argument("password_confirm", None)
+        if not (email and username and passwd and confirm_passwd):
+            raise tornado.web.HTTPError(400, "Please fill in all items")
+
+        passwd = passwd.strip()
+        confirm_passwd = confirm_passwd.strip()
+        if passwd != confirm_passwd:
+            raise tornado.web.HTTPError(400,
+                                        "Enter the password twice inconsistent")
+
         if self.is_author_exists(email):
             raise tornado.web.HTTPError(400, "author's email already signed")
         hashed_password = yield executor.submit(
-            bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
-            bcrypt.gensalt())
+            bcrypt.hashpw, tornado.escape.utf8(passwd), bcrypt.gensalt())
         author_id = self.db.execute(
             "INSERT INTO authors (email, name, hashed_password) "
             "VALUES (%s, %s, %s)",
-            email, self.get_argument("name"),
+            email.strip(), username.strip(),
             hashed_password)
-        self.set_secure_cookie("blog_user_id", str(author_id),
-                               # expires=time.time()+15*60,
-                               expires_days=None)
-        self.redirect(self.get_argument("next", "/"))
+        self.log_fd.debug('test')
+        self.log_fd.info(
+                ("email:{} sign up successful!"
+                    "[username:{};author_id:{}]").format(
+                        email, username, author_id))
+
+        self.redirect(self.get_argument("next", "/auth/login"))
 
 
 class AuthLoginHandler(BaseHandler):
     def get(self):
         # If there are no authors, redirect to the account creation page.
-        if not self.any_author_exists():
-            self.redirect("/auth/create")
-        else:
+        # if not self.any_author_exists():
+        #   self.redirect("/auth/create")
+        # else:
             # form = LoginForm()
             # self.render("login.html", error=None, form=form)
 
-            self.render("login.html", error=None)
+        self.render("login.html", error=None)
 
     @gen.coroutine
     def post(self):

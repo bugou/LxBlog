@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 
-{% block body %}
-<form action="/auth/create" method="POST">
-  Email: <input name="email" type="text"><br>
-  Name: <input name="name" type="text"><br>
-  Password: <input name="password" type="password"><br>
-  {% module xsrf_form_html() %}
-  <input type="submit">
+{% block content %}
+<form class="form-register" role="form" action="/auth/create" method="POST">
+    {% module xsrf_form_html() %}
+    <h2 class="form-signin-heading">Register</h2>
+    <div >Username: <input name="username" type="text" class="form-control" placeholder="Your name" required autofocus/></div><br/>
+    E-mail: <input name="email" type="text" class="form-control" placeholder="Email address" required/><br/>
+    Password: <input name="password" type="password" class="form-control" placeholder="Password" required/><br/>
+    Password(Confirm): <input name="password_confirm" type="password" class="form-control" placeholder="Password(Confirm)" required/><br/>
+
+    <button class="btn btn-success" style="width:100px;height: auto" type="reset" >Reset</button>
+    <button class="btn btn-success" style="width:100px;height: auto" type="submit">Register</button>
 </form>
 {% end %}

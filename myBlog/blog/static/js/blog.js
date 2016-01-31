@@ -1,0 +1,2 @@
+function check_pwd() {
+}
